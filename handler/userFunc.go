@@ -20,6 +20,7 @@ func GetUser() gin.HandlerFunc {
 		db, err := gorm.Open("mysql", "user:password@(mysql:3306)/sample?parseTime=true")
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "DB connection error"})
+			return
 		}
 		defer db.Close()
 
@@ -43,6 +44,7 @@ func PostUser() gin.HandlerFunc {
 		db, err := gorm.Open("mysql", "user:password@(mysql:3306)/sample?parseTime=true")
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "DB connection error"})
+			return
 		}
 		defer db.Close()
 
