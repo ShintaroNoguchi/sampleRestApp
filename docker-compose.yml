@@ -1,0 +1,26 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/app/Dockerfile
+    volumes:
+      - ./:/go/src/app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - "mysql"
+  mysql:
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/db/conf.d:/etc/mysql/conf.d
+      - ./log/mysql:/var/log/mysql
+    environment:
+      MYSQL_DATABASE: sample
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+      TZ: 'Asia/Tokyo'
+    build: ./docker/db
