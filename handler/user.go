@@ -1,7 +1,8 @@
-package db
+package handler
 
 import (
 	"net/http"
+	"sampleRestApp/db"
 	"sampleRestApp/model"
 
 	"github.com/gin-gonic/gin"
@@ -18,7 +19,7 @@ type userPersistence struct {
 }
 
 // NewUserPersistence 新しいUserRepositoryを作成する
-func NewUserPersistence(r Repository) UserRepository {
+func NewUserPersistence(r db.Repository) UserRepository {
 	return &userPersistence{r.GetConn()}
 }
 
