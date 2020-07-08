@@ -26,6 +26,16 @@ func NewRepository() (Repository, func(), error) {
 		db.Close()
 	}
 
+	// usersテーブルがなかった場合、マイグレーションとシーディングを実行
+	if db.HasTable(&User{}) == false {
+		db.AutoMigrate(&User{})
+
+		var u1 = User{Name: "taro", Age: 18}
+		db.Create(&u1)
+		var u2 = User{Name: "jiro", Age: 22}
+		db.Create(&u2)
+	}
+
 	return &repositoryStruct{db: db}, cleanup, nil
 }
 

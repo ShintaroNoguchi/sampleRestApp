@@ -24,19 +24,7 @@ type userPersistence struct {
 
 // NewUserPersistence 新しいUserRepositoryを作成する
 func NewUserPersistence(r Repository) UserRepository {
-	ur := &userPersistence{r.GetConn()}
-
-	// usersテーブルがなかった場合、マイグレーションとシーディングを実行
-	if ur.db.HasTable(&User{}) == false {
-		ur.db.AutoMigrate(&User{})
-
-		var u1 = User{Name: "taro", Age: 18}
-		ur.db.Create(&u1)
-		var u2 = User{Name: "jiro", Age: 22}
-		ur.db.Create(&u2)
-	}
-
-	return ur
+	return &userPersistence{r.GetConn()}
 }
 
 func (up userPersistence) GetAllUser(c *gin.Context) {
