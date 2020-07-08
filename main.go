@@ -30,7 +30,7 @@ func initialize() (*gin.Engine, func(), error) {
 	r := gin.Default()
 
 	r.GET("/v1/users", userHandler.GetAllUser)
-	//r.POST("/users", handler.PostUser())
+	r.POST("/v1/users", userHandler.CreateUser)
 
 	return r, cleanup, nil
 }

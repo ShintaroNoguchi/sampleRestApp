@@ -14,6 +14,7 @@ import (
 // UserHandler ユーザ情報用のインターフェース
 type UserHandler interface {
 	GetAllUser(*gin.Context)
+	CreateUser(*gin.Context)
 }
 
 type userPersistence struct {
@@ -25,6 +26,7 @@ func NewUserHandler(r db.Repository) UserHandler {
 	return &userPersistence{r.GetConn()}
 }
 
+// GetAllUser ユーザ情報を全件取得
 func (up userPersistence) GetAllUser(c *gin.Context) {
 	var users []model.User
 	err := up.db.Find(&users).Error
@@ -36,27 +38,21 @@ func (up userPersistence) GetAllUser(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
-// ----- 以下、工事中 -----
-
-// PostUser userを保存
-func PostUser() gin.HandlerFunc {
-	return func(c *gin.Context) {
-
-		var user model.User
-		if err := c.ShouldBindJSON(&user); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": err.Error()})
-			return
-		}
-
-		db, err := gorm.Open("mysql", "user:password@(mysql:3306)/sample?parseTime=true")
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "DB connection error"})
-			return
-		}
-		defer db.Close()
-
-		db.Create(&user)
-
-		c.JSON(http.StatusOK, gin.H{"status": "success", "message": ""})
+// CreateUser 新しいユーザを作成
+func (up userPersistence) CreateUser(c *gin.Context) {
+	var user model.User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		log.Error(err.Error())
+		c.JSON(http.StatusBadRequest, "bad_request")
+		return
 	}
+
+	err := up.db.Create(&user).Error
+	if err != nil {
+		log.Error(err.Error())
+		c.JSON(http.StatusInternalServerError, "internal_server_error")
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
 }
