@@ -31,6 +31,7 @@ func initialize() (*gin.Engine, func(), error) {
 
 	r.GET("/v1/users", userHandler.GetAllUser)
 	r.POST("/v1/users", userHandler.CreateUser)
+	r.PUT("/v1/users/:id", userHandler.UpdateUser)
 
 	return r, cleanup, nil
 }
