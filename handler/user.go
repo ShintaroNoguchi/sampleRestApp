@@ -10,7 +10,8 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type UserRepository interface {
+// UserHandler ユーザ情報用のインターフェース
+type UserHandler interface {
 	GetAllUser(*gin.Context)
 }
 
@@ -18,8 +19,8 @@ type userPersistence struct {
 	db *gorm.DB
 }
 
-// NewUserPersistence 新しいUserRepositoryを作成する
-func NewUserPersistence(r db.Repository) UserRepository {
+// NewUserHandler 新しいUserHandlerを作成する
+func NewUserHandler(r db.Repository) UserHandler {
 	return &userPersistence{r.GetConn()}
 }
 

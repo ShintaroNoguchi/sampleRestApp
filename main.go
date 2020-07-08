@@ -29,12 +29,12 @@ func initialize() (func(), error) {
 	if err != nil {
 		return nil, err
 	}
-	userRepository := handler.NewUserPersistence(repository)
+	userHandler := handler.NewUserHandler(repository)
 
 	// ルーティング
 	r := gin.Default()
 
-	r.GET("/users", userRepository.GetAllUser)
+	r.GET("/users", userHandler.GetAllUser)
 	//r.POST("/users", handler.PostUser())
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 
