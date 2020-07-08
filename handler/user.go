@@ -42,7 +42,6 @@ func (uh userHandler) GetAllUser(c *gin.Context) {
 func (uh userHandler) CreateUser(c *gin.Context) {
 	var user model.User
 	if err := c.ShouldBindJSON(&user); err != nil {
-		log.Error(err.Error())
 		c.JSON(http.StatusBadRequest, "bad_request")
 		return
 	}
