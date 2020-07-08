@@ -10,8 +10,8 @@ import (
 
 type User struct {
 	gorm.Model
-	Name string `form:"name" json:"name" xml:"name"  binding:"required"`
-	Age  int    `form:"age" json:"age" xml:"age"  binding:"required"`
+	Name string `json:"name"`
+	Age  int    `json:"age"`
 }
 
 type UserRepository interface {
