@@ -96,7 +96,7 @@ func (uh userHandler) UpdateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, target)
 }
 
-// DeleteUser 新しいユーザ情報を更新
+// DeleteUser ユーザ情報を削除
 func (uh userHandler) DeleteUser(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
