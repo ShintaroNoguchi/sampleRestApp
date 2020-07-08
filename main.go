@@ -1,23 +1,36 @@
 package main
 
 import (
+	"sampleRestApp/db"
+	"sampleRestApp/handler"
+
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/jinzhu/gorm"
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
-	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		db, err := gorm.Open("mysql", "user:password@(mysql:3306)/sample?parseTime=true")
-		if err != nil {
-			panic("データベースへの接続に失敗しました")
-		}
-		defer db.Close()
+	router, cleanup, err := initialize()
+	if err != nil {
+		log.Fatalf("server start failed. %v", err)
+	}
+	defer cleanup()
 
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	router.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+}
+
+func initialize() (*gin.Engine, func(), error) {
+	repository, cleanup, err := db.NewRepository()
+	if err != nil {
+		return nil, nil, err
+	}
+	userHandler := handler.NewUserHandler(repository)
+
+	// ルーティング
+	r := gin.Default()
+
+	r.GET("/v1/users", userHandler.GetAllUser)
+	//r.POST("/users", handler.PostUser())
+
+	return r, cleanup, nil
 }
