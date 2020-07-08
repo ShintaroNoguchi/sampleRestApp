@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
+	log "github.com/sirupsen/logrus"
 )
 
 // UserHandler ユーザ情報用のインターフェース
@@ -28,7 +29,8 @@ func (up userPersistence) GetAllUser(c *gin.Context) {
 	var users []model.User
 	err := up.db.Find(&users).Error
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		log.Error(err.Error())
+		c.JSON(http.StatusInternalServerError, "internal_server_error")
 		return
 	}
 	c.JSON(http.StatusOK, users)
