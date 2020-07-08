@@ -1,18 +1,18 @@
 package main
 
 import (
-	"fmt"
 	"sampleRestApp/db"
 	"sampleRestApp/handler"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
 	router, cleanup, err := initialize()
 	if err != nil {
-		fmt.Printf("server start failed. %v", err)
+		log.Fatalf("server start failed. %v", err)
 	}
 	defer cleanup()
 
@@ -29,7 +29,7 @@ func initialize() (*gin.Engine, func(), error) {
 	// ルーティング
 	r := gin.Default()
 
-	r.GET("/users", userHandler.GetAllUser)
+	r.GET("/v1/users", userHandler.GetAllUser)
 	//r.POST("/users", handler.PostUser())
 
 	return r, cleanup, nil
