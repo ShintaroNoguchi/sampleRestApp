@@ -2,17 +2,12 @@ package db
 
 import (
 	"net/http"
+	"sampleRestApp/model"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 )
-
-type User struct {
-	gorm.Model
-	Name string `json:"name"`
-	Age  int    `json:"age"`
-}
 
 type UserRepository interface {
 	GetAllUser(*gin.Context)
@@ -28,7 +23,7 @@ func NewUserPersistence(r Repository) UserRepository {
 }
 
 func (up userPersistence) GetAllUser(c *gin.Context) {
-	var users []User
+	var users []model.User
 	err := up.db.Find(&users).Error
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
@@ -43,7 +38,7 @@ func (up userPersistence) GetAllUser(c *gin.Context) {
 func PostUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		var user User
+		var user model.User
 		if err := c.ShouldBindJSON(&user); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": err.Error()})
 			return

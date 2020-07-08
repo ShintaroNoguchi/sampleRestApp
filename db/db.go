@@ -1,6 +1,8 @@
 package db
 
 import (
+	"sampleRestApp/model"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 )
@@ -27,12 +29,12 @@ func NewRepository() (Repository, func(), error) {
 	}
 
 	// usersテーブルがなかった場合、マイグレーションとシーディングを実行
-	if db.HasTable(&User{}) == false {
-		db.AutoMigrate(&User{})
+	if db.HasTable(&model.User{}) == false {
+		db.AutoMigrate(&model.User{})
 
-		var u1 = User{Name: "taro", Age: 18}
+		var u1 = model.User{Name: "taro", Age: 18}
 		db.Create(&u1)
-		var u2 = User{Name: "jiro", Age: 22}
+		var u2 = model.User{Name: "jiro", Age: 22}
 		db.Create(&u2)
 	}
 
