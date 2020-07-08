@@ -17,19 +17,19 @@ type UserHandler interface {
 	CreateUser(*gin.Context)
 }
 
-type userPersistence struct {
+type userHandler struct {
 	db *gorm.DB
 }
 
 // NewUserHandler 新しいUserHandlerを作成する
 func NewUserHandler(r db.Repository) UserHandler {
-	return &userPersistence{r.GetConn()}
+	return &userHandler{r.GetConn()}
 }
 
 // GetAllUser ユーザ情報を全件取得
-func (up userPersistence) GetAllUser(c *gin.Context) {
+func (uh userHandler) GetAllUser(c *gin.Context) {
 	var users []model.User
-	err := up.db.Find(&users).Error
+	err := uh.db.Find(&users).Error
 	if err != nil {
 		log.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, "internal_server_error")
@@ -39,7 +39,7 @@ func (up userPersistence) GetAllUser(c *gin.Context) {
 }
 
 // CreateUser 新しいユーザを作成
-func (up userPersistence) CreateUser(c *gin.Context) {
+func (uh userHandler) CreateUser(c *gin.Context) {
 	var user model.User
 	if err := c.ShouldBindJSON(&user); err != nil {
 		log.Error(err.Error())
@@ -47,7 +47,7 @@ func (up userPersistence) CreateUser(c *gin.Context) {
 		return
 	}
 
-	err := up.db.Create(&user).Error
+	err := uh.db.Create(&user).Error
 	if err != nil {
 		log.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, "internal_server_error")
