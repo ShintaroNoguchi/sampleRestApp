@@ -73,9 +73,13 @@ func (uh userHandler) UpdateUser(c *gin.Context) {
 	}
 
 	var target model.User
-	uh.db.First(&target, id)
-	if uh.db.NewRecord(target) == true {
+	err = uh.db.First(&target, id).Error
+	if gorm.IsRecordNotFoundError(err) {
 		c.JSON(http.StatusNotFound, "not_found")
+		return
+	} else if err != nil {
+		log.Error(err.Error())
+		c.JSON(http.StatusInternalServerError, "internal_server_error")
 		return
 	}
 
