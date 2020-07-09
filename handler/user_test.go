@@ -2,8 +2,10 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	mock_persistence "sampleRestApp/mock/persistence"
@@ -72,4 +74,114 @@ func TestGetAllUser_Success(t *testing.T) {
 	assert.Equal(t, 200, w.Code)
 	// 返ってきたJSONが正しいか
 	assert.ElementsMatch(t, users, seedUsers)
+}
+
+func TestGetAllUser_Failed_InternalServerError(t *testing.T) {
+	// userPersistenceのMock作成
+	userPersistence, cleanup := beforeEach(t)
+	defer cleanup()
+
+	seedError := errors.New("test")
+	// Mockのレスポンスを設定
+	userPersistence.EXPECT().GetAllUser().Return(nil, seedError)
+
+	// テストリクエスト実行
+	router := initialize(userPersistence)
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/v1/users", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	router.ServeHTTP(w, req)
+
+	// レスポンスのステータスが500か
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
+}
+
+func TestCreateUser_Success(t *testing.T) {
+	// userPersistenceのMock作成
+	userPersistence, cleanup := beforeEach(t)
+	defer cleanup()
+
+	// リクエストのデータを作成
+	seedUser := model.User{
+		Name: "Tokugawa Ieyasu",
+		Age:  100,
+	}
+	// Mockのレスポンスを設定
+	userPersistence.EXPECT().CreateUser(seedUser).Return(&seedUser, nil)
+
+	// テストリクエスト実行
+	router := initialize(userPersistence)
+	w := httptest.NewRecorder()
+
+	requestUserJSON, _ := json.Marshal(seedUser)
+	bodyReader := strings.NewReader(string(requestUserJSON))
+	req, err := http.NewRequest("POST", "/v1/users", bodyReader)
+	if err != nil {
+		log.Fatal(err)
+	}
+	router.ServeHTTP(w, req)
+
+	// JSONをUserにバインド
+	var user model.User
+	err = json.NewDecoder(w.Body).Decode(&user)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// レスポンスのステータスコードは201か
+	assert.Equal(t, http.StatusCreated, w.Code)
+	// 返ってきたJSONが正しいか
+	assert.Equal(t, user, seedUser)
+}
+
+func TestCreateUser_Failed_BadRequest(t *testing.T) {
+	// userPersistenceのMock作成
+	userPersistence, cleanup := beforeEach(t)
+	defer cleanup()
+
+	// テストリクエスト実行
+	router := initialize(userPersistence)
+	w := httptest.NewRecorder()
+	bodyReader := strings.NewReader("hogehoge")
+	req, err := http.NewRequest("POST", "/v1/users", bodyReader)
+	if err != nil {
+		log.Fatal(err)
+	}
+	router.ServeHTTP(w, req)
+
+	// レスポンスのステータスコードは400か
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+}
+
+func TestCreateUser_Failed_InternalServerError(t *testing.T) {
+	// userPersistenceのMock作成
+	userPersistence, cleanup := beforeEach(t)
+	defer cleanup()
+
+	// リクエストのデータを作成
+	seedUser := model.User{
+		Name: "Tokugawa Ieyasu",
+		Age:  100,
+	}
+
+	seedError := errors.New("test")
+	// Mockのレスポンスを設定
+	userPersistence.EXPECT().CreateUser(seedUser).Return(nil, seedError)
+
+	// テストリクエスト実行
+	router := initialize(userPersistence)
+	w := httptest.NewRecorder()
+
+	requestUserJSON, _ := json.Marshal(seedUser)
+	bodyReader := strings.NewReader(string(requestUserJSON))
+	req, err := http.NewRequest("POST", "/v1/users", bodyReader)
+	if err != nil {
+		log.Fatal(err)
+	}
+	router.ServeHTTP(w, req)
+
+	// レスポンスのステータスコードは500か
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
