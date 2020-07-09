@@ -3,7 +3,6 @@ package db
 import (
 	"sampleRestApp/model"
 
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 )
 

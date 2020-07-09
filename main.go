@@ -3,6 +3,7 @@ package main
 import (
 	"sampleRestApp/db"
 	"sampleRestApp/handler"
+	"sampleRestApp/persistence"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -24,7 +25,8 @@ func initialize() (*gin.Engine, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	userHandler := handler.NewUserHandler(repository)
+	userPersistence := persistence.NewUserPersistence(repository)
+	userHandler := handler.NewUserHandler(userPersistence)
 
 	// ルーティング
 	r := gin.Default()
