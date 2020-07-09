@@ -31,9 +31,9 @@ func NewRepository() (Repository, func(), error) {
 	if db.HasTable(&model.User{}) == false {
 		db.AutoMigrate(&model.User{})
 
-		var u1 = model.User{Name: "taro", Age: 18}
+		var u1 = model.User{Name: "John Smith", Age: 22}
 		db.Create(&u1)
-		var u2 = model.User{Name: "jiro", Age: 22}
+		var u2 = model.User{Name: "Yamada Taro", Age: 33}
 		db.Create(&u2)
 	}
 
