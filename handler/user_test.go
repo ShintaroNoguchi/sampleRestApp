@@ -108,25 +108,14 @@ func TestCreateUser_Success(t *testing.T) {
 		Name: "Tokugawa Ieyasu",
 		Age:  100,
 	}
-	// Mockの引数作成
-	requestUser := model.User{
-		Name: seedUser.Name,
-		Age:  seedUser.Age,
-	}
-	// Mockのレスポンス作成
-	expectedResponse := model.User{
-		Name: seedUser.Name,
-		Age:  seedUser.Age,
-	}
-	log.Debug(expectedResponse)
 	// Mockのレスポンスを設定
-	userPersistence.EXPECT().CreateUser(requestUser).Return(&expectedResponse, nil)
+	userPersistence.EXPECT().CreateUser(seedUser).Return(&seedUser, nil)
 
 	// テストリクエスト実行
 	router := initialize(userPersistence)
 	w := httptest.NewRecorder()
 
-	requestUserJSON, _ := json.Marshal(requestUser)
+	requestUserJSON, _ := json.Marshal(seedUser)
 	bodyReader := strings.NewReader(string(requestUserJSON))
 	req, err := http.NewRequest("POST", "/v1/users", bodyReader)
 	if err != nil {
@@ -176,21 +165,16 @@ func TestCreateUser_Failed_InternalServerError(t *testing.T) {
 		Name: "Tokugawa Ieyasu",
 		Age:  100,
 	}
-	// Mockの引数作成
-	requestUser := model.User{
-		Name: seedUser.Name,
-		Age:  seedUser.Age,
-	}
 
 	seedError := myerrors.NewDB("test")
 	// Mockのレスポンスを設定
-	userPersistence.EXPECT().CreateUser(requestUser).Return(nil, seedError)
+	userPersistence.EXPECT().CreateUser(seedUser).Return(nil, seedError)
 
 	// テストリクエスト実行
 	router := initialize(userPersistence)
 	w := httptest.NewRecorder()
 
-	requestUserJSON, _ := json.Marshal(requestUser)
+	requestUserJSON, _ := json.Marshal(seedUser)
 	bodyReader := strings.NewReader(string(requestUserJSON))
 	req, err := http.NewRequest("POST", "/v1/users", bodyReader)
 	if err != nil {
