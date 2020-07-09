@@ -15,14 +15,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func NewUserHandlerForMock(up *mock_persistence.MockUserPersistence) UserHandler {
+func newUserHandlerForMock(up *mock_persistence.MockUserPersistence) UserHandler {
 	return &userHandler{
 		userPersistence: up,
 	}
 }
 
 func initialize(up *mock_persistence.MockUserPersistence) *gin.Engine {
-	userHandler := NewUserHandlerForMock(up)
+	userHandler := newUserHandlerForMock(up)
 
 	// ルーティング
 	r := gin.Default()
