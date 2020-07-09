@@ -2,12 +2,12 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
-	myerrors "sampleRestApp/errors"
 	mock_persistence "sampleRestApp/mock/persistence"
 	"sampleRestApp/model"
 
@@ -81,7 +81,7 @@ func TestGetAllUser_Failed_InternalServerError(t *testing.T) {
 	userPersistence, cleanup := beforeEach(t)
 	defer cleanup()
 
-	seedError := myerrors.NewDB("test")
+	seedError := errors.New("test")
 	// Mockのレスポンスを設定
 	userPersistence.EXPECT().GetAllUser().Return(nil, seedError)
 
@@ -166,7 +166,7 @@ func TestCreateUser_Failed_InternalServerError(t *testing.T) {
 		Age:  100,
 	}
 
-	seedError := myerrors.NewDB("test")
+	seedError := errors.New("test")
 	// Mockのレスポンスを設定
 	userPersistence.EXPECT().CreateUser(seedUser).Return(nil, seedError)
 
