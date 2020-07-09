@@ -2,12 +2,11 @@ package handler
 
 import (
 	"net/http"
-	"sampleRestApp/db"
 	"sampleRestApp/model"
+	"sampleRestApp/persistence"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
 )
@@ -21,18 +20,19 @@ type UserHandler interface {
 }
 
 type userHandler struct {
-	db *gorm.DB
+	userPersistence persistence.UserPersistence
 }
 
 // NewUserHandler 新しいUserHandlerを作成する
-func NewUserHandler(r db.Repository) UserHandler {
-	return &userHandler{r.GetConn()}
+func NewUserHandler(up persistence.UserPersistence) UserHandler {
+	return &userHandler{
+		userPersistence: up,
+	}
 }
 
 // GetAllUser ユーザ情報を全件取得
 func (uh userHandler) GetAllUser(c *gin.Context) {
-	var users []model.User
-	err := uh.db.Find(&users).Error
+	users, err := uh.userPersistence.GetAllUser()
 	if err != nil {
 		log.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, "internal_server_error")
@@ -49,14 +49,14 @@ func (uh userHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	err := uh.db.Create(&user).Error
+	target, err := uh.userPersistence.CreateUser(user)
 	if err != nil {
 		log.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, "internal_server_error")
 		return
 	}
 
-	c.JSON(http.StatusCreated, user)
+	c.JSON(http.StatusCreated, *target)
 }
 
 // UpdateUser 新しいユーザ情報を更新
@@ -73,8 +73,7 @@ func (uh userHandler) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	var target model.User
-	err = uh.db.First(&target, id).Error
+	target, err := uh.userPersistence.UpdateUser(id, user)
 	if gorm.IsRecordNotFoundError(err) {
 		c.JSON(http.StatusNotFound, "not_found")
 		return
@@ -84,16 +83,7 @@ func (uh userHandler) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	target.Name = user.Name
-	target.Age = user.Age
-	err = uh.db.Save(&target).Error
-	if err != nil {
-		log.Error(err.Error())
-		c.JSON(http.StatusInternalServerError, "internal_server_error")
-		return
-	}
-
-	c.JSON(http.StatusOK, target)
+	c.JSON(http.StatusOK, *target)
 }
 
 // DeleteUser ユーザ情報を削除
@@ -104,19 +94,11 @@ func (uh userHandler) DeleteUser(c *gin.Context) {
 		return
 	}
 
-	var user model.User
-	err = uh.db.First(&user, id).Error
+	err = uh.userPersistence.DeleteUser(id)
 	if gorm.IsRecordNotFoundError(err) {
 		c.JSON(http.StatusNotFound, "not_found")
 		return
 	} else if err != nil {
-		log.Error(err.Error())
-		c.JSON(http.StatusInternalServerError, "internal_server_error")
-		return
-	}
-
-	err = uh.db.Delete(&user).Error
-	if err != nil {
 		log.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, "internal_server_error")
 		return
