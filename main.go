@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"sampleRestApp/db"
 	"sampleRestApp/handler"
 	"sampleRestApp/persistence"
@@ -21,6 +22,7 @@ func main() {
 }
 
 func initialize() (*gin.Engine, func(), error) {
+	os.Setenv("ENV", "dev")
 	repository, cleanup, err := db.NewRepository()
 	if err != nil {
 		return nil, nil, err
